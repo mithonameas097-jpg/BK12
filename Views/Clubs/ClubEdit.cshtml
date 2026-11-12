@@ -1,0 +1,168 @@
+﻿@model _bk12.Models.ClubRequestViewModel
+
+@{
+    ViewData["Title"] = "Edit Club Information";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-2 rounded-4 p-4 p-md-5" style="background-color: #050A2E; border-color: #E3A649 !important; color: #ffffff;">
+
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-warning" style="color: #E3A649 !important;">Edit Club Information</h2>
+                    <p class="text-light-50" style="color: #cbd5e1;">Update club details, branding, or assign ownership.</p>
+                </div>
+
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" name="club_ID" value="@Model.Club_ID" />
+                    <input type="hidden" name="logoUrl" value="@Model.Logo_Url" />
+
+                    <div class="row g-4 align-items-center">
+
+                        <div class="col-md-4 text-center">
+                            <div class="p-3 border rounded-3 shadow-sm" style="background-color: #04071C; border-color: #E3A649 !important;">
+                                <label class="form-label fw-bold mb-3" style="color: #E3A649;">Club Logo Preview</label>
+
+                                <div class="mb-3 d-flex justify-content-center align-items-center rounded" style="height: 160px; background-color: #02040D; border: 1px solid #081278; overflow: hidden;">
+                                    <img id="logoPreview" src="@(!string.IsNullOrEmpty(Model.Logo_Url) ? Model.Logo_Url : "/images/default-club.png")" alt="Logo Preview" class="img-fluid" style="max-height: 150px; object-fit: contain;" />
+                                </div>
+
+                                <div class="text-start">
+                                    <label asp-for="LogoFile" class="form-label text-light small">Upload New Image File</label>
+                                    <input asp-for="LogoFile" name="logoFile" type="file" class="form-control form-control-sm text-white custom-blue-input" id="logoFileInput" accept=".png,.jpg,.jpeg" />
+                                    <span asp-validation-for="LogoFile" class="text-danger small"></span>
+                                </div>
+
+                                <div class="text-start mt-2">
+                                    <label asp-for="Logo_Url" class="form-label text-light small">Or Update Image URL</label>
+                                    <input asp-for="Logo_Url" name="logoUrl" class="form-control form-control-sm text-white custom-blue-input" id="logoUrlInput" placeholder="https://..." />
+                                    <span asp-validation-for="Logo_Url" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-8">
+
+                            <div class="mb-3">
+                                <label class="form-label text-light fw-bold">Club Owner</label>
+                                @if (isAdmin)
+                                {
+                                    <select name="selectedUserId" class="form-select text-white custom-blue-input">
+                                        @if (ViewBag.ClubOwnersList != null)
+                                        {
+                                            foreach (var option in (IEnumerable<SelectListItem>)ViewBag.ClubOwnersList)
+                                            {
+                                                <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                    <small class="text-warning">Admin Mode: Reassign this club to another owner.</small>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control text-white custom-blue-input" value="@ViewBag.OwnerUsername" disabled />
+                                    <input type="hidden" name="selectedUserId" value="@ViewBag.ownerID" />
+                                }
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ClubName" class="form-label text-light fw-bold">Club Name</label>
+                                <input asp-for="ClubName" name="clubName" class="form-control text-white custom-blue-input" placeholder="Enter club name..." />
+                                <span asp-validation-for="ClubName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label text-light fw-bold">Description</label>
+                                <textarea asp-for="Description" name="description" class="form-control text-white custom-blue-input" rows="4" placeholder="Enter club description..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a asp-action="Manage" class="btn btn-outline-light px-4" style="border-color: #E3A649; color: #E3A649;">Back to Portal</a>
+                                <button type="submit" class="btn fw-bold px-5" style="background-color: #E3A649; color: #04071C; border: none;">
+                                    @(isAdmin ? "Save Changes Directly" : "Submit Edit Request")
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-blue-input {
+        background-color: #081278 !important;
+        border: 1px solid #1E293B !important;
+        color: #ffffff !important;
+    }
+
+        .custom-blue-input:focus {
+            background-color: #0A1696 !important;
+            border-color: #E3A649 !important;
+            box-shadow: 0 0 8px rgba(227, 166, 73, 0.4) !important;
+            color: #ffffff !important;
+        }
+
+        .custom-blue-input::placeholder {
+            color: #94A3B8 !important;
+        }
+
+        .custom-blue-input option {
+            background-color: #050A2E;
+            color: #ffffff;
+        }
+
+        .custom-blue-input::file-selector-button {
+            background-color: #04071C !important;
+            color: #E3A649 !important;
+            border: 1px solid #E3A649 !important;
+            border-radius: 4px;
+            padding: 2px 8px;
+        }
+
+            .custom-blue-input::file-selector-button:hover {
+                background-color: #E3A649 !important;
+                color: #04071C !important;
+                cursor: pointer;
+            }
+</style>
+
+@section Scripts {
+    <script>
+        const logoFileInput = document.getElementById('logoFileInput');
+        const logoUrlInput = document.getElementById('logoUrlInput');
+        const logoPreview = document.getElementById('logoPreview');
+
+        logoFileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    logoPreview.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+                logoUrlInput.value = '';
+            }
+        });
+
+        logoUrlInput.addEventListener('input', function(event) {
+            const url = event.target.value.trim();
+            if (url) {
+                logoPreview.src = url;
+                logoFileInput.value = '';
+            } else {
+                logoPreview.src = '@(string.IsNullOrEmpty(Model.Logo_Url) ? "/images/default-club.png" : Model.Logo_Url)';
+            }
+        });
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}

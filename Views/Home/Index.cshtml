@@ -1,0 +1,89 @@
+﻿@model IEnumerable<_bk12.Models.HomeMatchViewModel>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    .match-card {
+        background-color: #050A2E;
+        border: 1px solid #1e293b;
+        border-radius: 16px;
+        transition: transform 0.2s, border-color 0.2s;
+    }
+    .match-card:hover {
+        transform: translateY(-4px);
+        border-color: #E3A649;
+    }
+    .club-logo-home {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+    }
+</style>
+
+<div class="container my-5 text-white">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-warning">Upcoming & Ongoing Matches</h1>
+        <p class="text-white-50">Catch all the action live at our registered stadiums.</p>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var match in Model)
+            {
+                <div class="col-md-4">
+                    <div class="match-card p-4 h-d-flex flex-column justify-content-between shadow-lg">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge @(match.Status == "Ongoing" ? "bg-warning text-dark" : "bg-info text-dark") text-uppercase px-2 py-1">
+                                @match.Status
+                            </span>
+                            <small class="text-white-50"><i class="bi bi-calendar3 me-1"></i>@match.Schedule.ToString("dd MMM yyyy, HH:mm")</small>
+                        </div>
+
+                        <!-- Teams matchup layout -->
+                        <div class="d-flex align-items-center justify-content-around my-3">
+                            <div class="text-center" style="width: 40%;">
+                                <img src="@match.Home_Club_Logo" alt="@match.Home_Club_Name" class="club-logo-home mb-2" onerror="this.src='/images/default-club.png';" />
+                                <h6 class="fw-bold text-truncate mb-0">@match.Home_Club_Name</h6>
+                                <small class="text-white-50">Home</small>
+                            </div>
+
+                            <div class="text-warning fw-bold fs-5">VS</div>
+
+                            <div class="text-center" style="width: 40%;">
+                                <img src="@match.Away_Club_Logo" alt="@match.Away_Club_Name" class="club-logo-home mb-2" onerror="this.src='/images/default-club.png';" />
+                                <h6 class="fw-bold text-truncate mb-0">@match.Away_Club_Name</h6>
+                                <small class="text-white-50">Away</small>
+                            </div>
+                        </div>
+
+                        <hr class="border-secondary my-3" />
+
+                        <!-- Stadium & Location link -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-white-50 d-block">Stadium</small>
+                                <span class="fw-bold text-light">@match.Stadium_Name</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(match.Map_Url))
+                            {
+                                <a href="@match.Map_Url" target="_blank" class="btn btn-outline-warning btn-sm rounded-pill px-3">
+                                    <i class="bi bi-geo-alt-fill me-1"></i> Map
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 text-white-50">
+            <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+            <p class="fs-5">No upcoming or ongoing matches scheduled at the moment.</p>
+        </div>
+    }
+</div>

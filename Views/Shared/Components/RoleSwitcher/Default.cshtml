@@ -1,0 +1,53 @@
+﻿@model _bk12.ViewComponents.RoleSwitcherViewModel
+
+@if (Model.Roles.Count > 1)
+{
+    var others = Model.Roles.Where(r => r != Model.CurrentRole).ToList();
+
+    <li><hr class="dropdown-divider"></li>
+    <li class="bk-role-label">Role</li>
+    <li class="bk-split" data-bk-split>
+
+        @* Split row: current role | chevron *@
+        <button type="button" class="bk-split-row" data-bk-split-toggle
+                aria-haspopup="true" aria-expanded="false">
+            <span class="bk-split-current">
+                <span class="bk-role-badge is-active">@Model.CurrentRole.Substring(0, 1).ToUpper()</span>
+                <span class="bk-role-name">@Model.CurrentRole</span>
+            </span>
+            <span class="bk-split-caret" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 3L5 8l5 5" />
+                </svg>
+            </span>
+        </button>
+
+        @* Flyout (opens to the left) *@
+        <div class="bk-split-flyout" role="menu">
+            <div class="bk-role-label">Current</div>
+            <div class="bk-role-item is-active is-static">
+                <span class="bk-role-badge is-active">@Model.CurrentRole.Substring(0, 1).ToUpper()</span>
+                <span class="bk-role-name">@Model.CurrentRole</span>
+                <svg class="bk-role-check" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 8.5l3.2 3.2L13 4.8" />
+                </svg>
+            </div>
+
+            <div class="bk-flyout-divider"></div>
+            <div class="bk-role-label">Switch to</div>
+
+            <form asp-controller="Roles" asp-action="Switch" method="post" class="m-0">
+                @foreach (var role in others)
+                {
+                    <button type="submit" name="role" value="@role" class="bk-role-item" role="menuitem">
+                        <span class="bk-role-badge">@role.Substring(0, 1).ToUpper()</span>
+                        <span class="bk-role-name">@role</span>
+                    </button>
+                }
+            </form>
+        </div>
+    </li>
+}

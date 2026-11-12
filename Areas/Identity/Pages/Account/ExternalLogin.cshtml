@@ -1,0 +1,56 @@
+@page
+@model ExternalLoginModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+
+            <div class="card text-light shadow-lg" style="background-color: #050A2E; border: 2px solid #ffc107; border-radius: 15px;">
+                <div class="card-header text-center py-4" style="background-color: #ffc107; border-top-left-radius: 13px; border-top-right-radius: 13px;">
+                    <h3 class="mb-0 fw-bold text-dark" id="external-login-title">Complete Registration</h3>
+                    <p class="text-dark mb-0 small mt-1">Associate your @Model.ProviderDisplayName account</p>
+                </div>
+                <div class="card-body p-4 p-md-5" style="background-color: #050A2E; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+
+                    <div class="alert alert-warning mb-4 py-3 text-dark fw-medium small" role="alert" style="background-color: rgba(255, 193, 7, 0.15); border-color: #ffc107; color: #ffc107 !important;" id="external-login-description">
+                        You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>. Please confirm your email address below to finalize setting up your BK 12 account.
+                    </div>
+
+                    <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-warning mb-3 small" role="alert"></div>
+
+                        <div class="form-floating mb-4">
+                            <input asp-for="Input.Email" class="form-control text-light" autocomplete="email" placeholder="Please enter your email." style="background-color: #03071e; border-color: #ffc107; color: #fff !important;" />
+                            <label asp-for="Input.Email" class="form-label" style="color: #a0aec0;">Email Address</label>
+                            <span asp-validation-for="Input.Email" class="text-warning small"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-4">
+                            <button type="submit" class="btn btn-warning fw-bold py-3 text-dark shadow" style="background-color: #ffc107; border-color: #ffc107; border-radius: 8px; font-size: 1.05rem;">
+                                Complete Registration
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr style="border-color: #ffc107; opacity: 0.3;" class="my-4">
+
+                    <div class="text-center">
+                        <p class="mb-0 small" style="color: #a0aec0;">
+                            Already have an account?
+                            <a asp-page="./Login" class="text-warning fw-bold text-decoration-none">Log in here</a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

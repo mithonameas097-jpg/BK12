@@ -1,0 +1,441 @@
+﻿@{
+    ViewData["Title"] = "Approved Managed Entities";
+    string currentTab = ViewBag.CurrentTab as string ?? "clubs";
+    var clubs = ViewBag.Clubs as IEnumerable<_bk12.Data.Club>;
+    var stadiumsTable = ViewBag.StadiumsTable as System.Data.DataTable;
+    var matchTable = ViewBag.MatchTable as System.Data.DataTable;
+}
+
+<style>
+    body {
+        background-color: #04071C;
+        color: #f8fafc;
+    }
+
+    .nav-tabs-custom {
+        border-bottom: 2px solid #334155;
+    }
+
+        .nav-tabs-custom .nav-link {
+            color: #94a3b8;
+            font-weight: 600;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 10px 20px;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+
+            .nav-tabs-custom .nav-link:hover {
+                color: #e2e8f0;
+                border-color: #475569;
+            }
+
+            .nav-tabs-custom .nav-link.active {
+                color: #E3A649;
+                border-bottom-color: #E3A649;
+                background: transparent;
+            }
+
+    .custom-table tbody tr:hover {
+        background-color: #081278 !important;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .custom-table td {
+        vertical-align: middle;
+        background-color: transparent !important;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="card shadow-lg border-2 rounded-4 p-4" style="background-color: #050A2E; border-color: #E3A649 !important; color: #ffffff;">
+
+        <!-- Header Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="color: #E3A649;">Approved Entities</h2>
+                <p class="text-white-50 mb-0">Overview of all active and registered clubs, stadiums, and matches.</p>
+            </div>
+            <a asp-controller="Admin" asp-action="Approvals" class="btn btn-outline-light btn-sm px-3" style="border-color: #E3A649; color: #E3A649;">
+                Back to Pending Approvals
+            </a>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs nav-tabs-custom mb-4" id="approvedTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(currentTab == "clubs" ? "active" : "")"
+                   asp-action="Approved"
+                   asp-route-tab="clubs">
+                    <i class="bi bi-shield-shaded me-2"></i>Approved Clubs
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(currentTab == "stadiums" ? "active" : "")"
+                   asp-action="Approved"
+                   asp-route-tab="stadiums">
+                    <i class="bi bi-building me-2"></i>Approved Stadiums
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link @(currentTab == "matches" ? "active" : "")"
+                   asp-action="Approved"
+                   asp-route-tab="matches">
+                    <i class="bi bi-calendar-event me-2"></i>Approved Matches
+                </a>
+            </li>
+        </ul>
+
+        @if (currentTab == "clubs")
+        {
+            <!-- CLUBS TAB CONTENT -->
+            <div class="table-responsive">
+                <table class="table align-middle text-white mb-0 custom-table">
+                    <thead>
+                        <tr class="text-uppercase small" style="border-bottom: 2px solid #E3A649; color: #E3A649;">
+                            <th scope="col" style="width: 70px;">Logo</th>
+                            <th scope="col">Club Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col" style="width: 120px;">Status</th>
+                            <th scope="col" style="width: 130px;">Created Date</th>
+                            <th scope="col" class="text-center" style="width: 90px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (clubs != null && clubs.Any())
+                        {
+                            @foreach (var club in clubs)
+                            {
+                                <tr style="border-bottom: 1px solid rgba(227, 166, 73, 0.15);">
+                                    <td>
+                                        <div class="rounded p-1 text-center d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: #04071C; border: 1px solid #081278;">
+                                            <img src="@(string.IsNullOrEmpty(club.Logo_Url) ? "/images/default-club.png" : club.Logo_Url)"
+                                                 alt="@club.Club_Name Logo"
+                                                 class="img-fluid"
+                                                 style="max-height: 40px; object-fit: contain;" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-white d-block">@club.Club_Name</span>
+                                        <small class="text-white-50">#@club.Club_ID.ToString("D4")</small>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0 text-white-50 text-truncate" style="max-width: 320px;" title="@club.Description">
+                                            @(string.IsNullOrWhiteSpace(club.Description) ? "No description available" : club.Description)
+                                        </p>
+                                    </td>
+                                    <td>
+                                        @if (club.Inactive)
+                                        {
+                                            <span class="badge bg-danger text-uppercase px-2 py-1 small">Inactive</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success text-uppercase px-2 py-1 small">Active</span>
+                                        }
+                                    </td>
+                                    <td class="small text-white-50">
+                                        @club.Created_Date.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-controller="Clubs"
+                                           asp-action="ClubEdit"
+                                           asp-route-id="@club.Club_ID"
+                                           class="btn btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center shadow-sm text-decoration-none"
+                                           style="width: 36px; height: 36px; background-color: #E3A649; border: none;"
+                                           title="Edit @club.Club_Name">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#04071C" viewBox="0 0 16 16">
+                                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                            </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-white-50">
+                                    No approved clubs found in the system.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (currentTab == "stadiums")
+        {
+            <!-- STADIUMS TAB CONTENT -->
+            <div class="table-responsive">
+                <table class="table align-middle text-white mb-0 custom-table">
+                    <thead>
+                        <tr class="text-uppercase small" style="border-bottom: 2px solid #E3A649; color: #E3A649;">
+                            <th scope="col" style="width: 70px;">Image</th>
+                            <th scope="col">Stadium Name</th>
+                            <th scope="col">Capacity</th>
+                            <th scope="col">Zones (A / B)</th>
+                            <th scope="col" style="width: 120px;">Status</th>
+                            <th scope="col" style="width: 130px;">Created Date</th>
+                            <th scope="col" class="text-center" style="width: 90px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (stadiumsTable != null && stadiumsTable.Rows.Count > 0)
+                        {
+                            @foreach (System.Data.DataRow row in stadiumsTable.Rows)
+                            {
+                                bool isInactive = row["Inactive"] != DBNull.Value && Convert.ToBoolean(row["Inactive"]);
+                                int capacity = row["Capacity"] != DBNull.Value ? Convert.ToInt32(row["Capacity"]) : 0;
+                                int zoneA = row["ZoneA"] != DBNull.Value ? Convert.ToInt32(row["ZoneA"]) : 0;
+                                int zoneB = row["ZoneB"] != DBNull.Value ? Convert.ToInt32(row["ZoneB"]) : 0;
+                                string imgUrl = row["Stadium_IMG"] != DBNull.Value ? row["Stadium_IMG"].ToString() : "/images/default-stadium.png";
+                                int stadiumId = row["Stadium_ID"] != DBNull.Value ? Convert.ToInt32(row["Stadium_ID"]) : 0;
+                                string stadiumName = row["Stadium_Name"] != DBNull.Value ? row["Stadium_Name"].ToString() : "Unknown";
+
+                                <tr style="border-bottom: 1px solid rgba(227, 166, 73, 0.15);">
+                                    <td>
+                                        <div class="rounded p-1 text-center d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: #04071C; border: 1px solid #081278;">
+                                            <img src="@imgUrl"
+                                                 alt="@stadiumName Image"
+                                                 class="img-fluid rounded"
+                                                 style="max-height: 40px; object-fit: cover;"
+                                                 onerror="this.src='/images/default-stadium.png';" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-white d-block">@stadiumName</span>
+                                        <small class="text-white-50">#@stadiumId.ToString("D4")</small>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-warning">@capacity.ToString("N0")</span>
+                                    </td>
+                                    <td class="small text-white-50">
+                                        Zone A: <strong class="text-white">@zoneA.ToString("N0")</strong> |
+                                        Zone B: <strong class="text-white">@zoneB.ToString("N0")</strong>
+                                    </td>
+                                    <td>
+                                        @if (isInactive)
+                                        {
+                                            <span class="badge bg-danger text-uppercase px-2 py-1 small">Inactive</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success text-uppercase px-2 py-1 small">Active</span>
+                                        }
+                                    </td>
+                                    <td class="small text-white-50">
+                                        @(row["Created_Date"] != DBNull.Value ? Convert.ToDateTime(row["Created_Date"]).ToString("dd MMM yyyy") : "-")
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-controller="Stadium"
+                                           asp-action="StadiumEdit"
+                                           asp-route-id="@stadiumId"
+                                           class="btn btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center shadow-sm text-decoration-none"
+                                           style="width: 36px; height: 36px; background-color: #E3A649; border: none;"
+                                           title="Edit @stadiumName">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#04071C" viewBox="0 0 16 16">
+                                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                                            </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-white-50">
+                                    No approved stadiums found in the system.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (currentTab == "matches")
+        {
+            <!-- MATCHES TAB CONTENT -->
+            <div class="table-responsive">
+                <table class="table align-middle text-white mb-0 custom-table">
+                    <thead>
+                        <tr class="text-uppercase small" style="border-bottom: 2px solid #E3A649; color: #E3A649;">
+                            <th scope="col">Match ID</th>
+                            <th scope="col">Home Club ID</th>
+                            <th scope="col">Away Club ID</th>
+                            <th scope="col">Stadium ID</th>
+                            <th scope="col">Schedule</th>
+                            <th scope="col" style="width: 120px;">Status</th>
+                            <th scope="col" class="text-center" style="width: 90px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (matchTable != null && matchTable.Rows.Count > 0)
+                        {
+                            @foreach (System.Data.DataRow row in matchTable.Rows)
+                            {
+                                int matchId = row["Match_ID"] != DBNull.Value ? Convert.ToInt32(row["Match_ID"]) : 0;
+                                string homeClub = row["Home_Club"] != DBNull.Value ? row["Home_Club"].ToString() : "-";
+                                string awayClub = row["Away_Club"] != DBNull.Value ? row["Away_Club"].ToString() : "-";
+                                string stadium = row["Stadium_ID"] != DBNull.Value ? row["Stadium_ID"].ToString() : "-";
+                                DateTime? schedule = row["Schedule"] != DBNull.Value ? Convert.ToDateTime(row["Schedule"]) : (DateTime?)null;
+                                string status = row.Table.Columns.Contains("Status") && row["Status"] != DBNull.Value ? row["Status"].ToString() : "Upcoming";
+
+                                <tr style="border-bottom: 1px solid rgba(227, 166, 73, 0.15);">
+                                    <td>
+                                        <span class="fw-bold text-white">#@matchId.ToString("D4")</span>
+                                    </td>
+                                    <td><span class="text-white">@homeClub</span></td>
+                                    <td><span class="text-white">@awayClub</span></td>
+                                    <td><span class="text-white-50">@stadium</span></td>
+                                    <td class="small text-white-50">
+                                        @(schedule.HasValue ? schedule.Value.ToString("dd MMM yyyy, HH:mm") : "-")
+                                    </td>
+                                    <td>
+                                        @if (status.Equals("Upcoming", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-info text-dark text-uppercase px-2 py-1 small">@status</span>
+                                        }
+                                        else if (status.Equals("Ongoing", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-warning text-dark text-uppercase px-2 py-1 small">@status</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary text-uppercase px-2 py-1 small">@status</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button"
+                                                onclick="showMatchDetails(@matchId)"
+                                                class="btn btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center shadow-sm text-decoration-none"
+                                                style="width: 36px; height: 36px; background-color: #E3A649; border: none;"
+                                                title="View Match Details">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#04071C" viewBox="0 0 16 16">
+                                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-white-50">
+                                    No matches found in the system.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Match Details Modal -->
+            <div class="modal fade" id="matchDetailsModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content text-white" style="background-color: #050A2E; border: 2px solid #E3A649; border-radius: 16px;">
+                        <div class="modal-header border-bottom border-secondary">
+                            <h3 class="modal-title fw-bold" style="color: #E3A649;">Match Approved</h3>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <p class="text-white-50 mb-1 small uppercase">Requested By</p>
+                                    <h6 id="modalUser" class="fw-bold text-white">-</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <p class="text-white-50 mb-1 small uppercase">Date</p>
+                                    <div class="p-2 rounded border border-warning text-center text-warning fw-bold" id="modalDate">-</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <p class="text-white-50 mb-1 small uppercase">Time</p>
+                                    <div class="p-2 rounded border border-warning text-center text-warning fw-bold" id="modalTime">-</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <p class="text-white-50 mb-1 small uppercase">Approved By (Admin)</p>
+                                    <span id="modalApprovedBy" class="text-warning fw-bold">-</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-white-50 mb-1 small uppercase">Status</p>
+                                    <div class="p-2 rounded border border-warning text-center text-warning fw-bold" id="modalStatus">-</div>
+                                </div>
+
+                                <div class="col-md-6 mt-3">
+                                    <p class="text-white-50 mb-1 small uppercase">Home</p>
+                                    <div class="p-3 rounded border border-warning d-flex align-items-center gap-3" style="background-color: #04071C;">
+                                        <img id="modalHomeLogo" src="/images/default-club.png" alt="Home" style="width: 36px; height: 36px; object-fit: contain;" />
+                                        <span id="modalHomeClub" class="fw-bold text-white">-</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <p class="text-white-50 mb-1 small uppercase">Away</p>
+                                    <div class="p-3 rounded border border-warning d-flex align-items-center gap-3" style="background-color: #04071C;">
+                                        <img id="modalAwayLogo" src="/images/default-club.png" alt="Away" style="width: 36px; height: 36px; object-fit: contain;" />
+                                        <span id="modalAwayClub" class="fw-bold text-white">-</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-3">
+                                    <div class="p-3 rounded border border-warning d-flex align-items-center gap-3" style="background-color: #04071C;">
+                                        <img id="modalStadiumImg" src="/images/default-stadium.png" alt="Stadium" class="rounded" style="width: 80px; height: 50px; object-fit: cover;" />
+                                        <div>
+                                            <h5 id="modalStadium" class="fw-bold text-white mb-1">-</h5>
+                                            <small id="modalStadiumLocation" class="text-white-50">-</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-3">
+                                    <p class="text-white-50 mb-1 small uppercase">Note</p>
+                                    <div class="p-3 rounded border border-secondary text-white-50" style="background-color: #04071C;" id="modalNote">
+                                        No notes
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                          function showMatchDetails(matchId) {
+                              fetch('/Admin/GetMatchJson?id=' + matchId)
+                                   .then(response => response.json())
+                                    .then(data => {
+                                      if (data.success) {
+                                          document.getElementById('modalUser').innerText = data.requestedBy;
+                                           document.getElementById('modalApprovedBy').innerText = data.approvedBy;
+                                        document.getElementById('modalDate').innerText = data.dateStr;
+                                          document.getElementById('modalTime').innerText = data.timeStr;
+                                         document.getElementById('modalStatus').innerText = data.status;
+
+                                           document.getElementById('modalHomeClub').innerText = data.homeClubName;
+                                        document.getElementById('modalHomeLogo').src = data.homeClubLogo;
+
+                                          document.getElementById('modalAwayClub').innerText = data.awayClubName;
+                                            document.getElementById('modalAwayLogo').src = data.awayClubLogo;
+
+                                         document.getElementById('modalStadium').innerText = data.stadiumName;
+                                            document.getElementById('modalStadiumLocation').innerText = data.stadiumLocation;
+                                           document.getElementById('modalStadiumImg').src = data.stadiumImg;
+
+                                         document.getElementById('modalNote').innerText = data.note || 'No notes';
+
+                                          var myModal = new bootstrap.Modal(document.getElementById('matchDetailsModal'));
+                                                        myModal.show();
+                                                    } else {
+                                        alert('Could not load match details.');
+                                                    }
+                                        })
+                                    .catch(err => console.error('Error fetching match details:', err));
+                               }
+            </script>
+        }
+    </div>
+</div>

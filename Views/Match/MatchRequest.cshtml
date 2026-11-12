@@ -1,0 +1,309 @@
+﻿@{
+    ViewData["Title"] = "Request Match";
+}
+
+<style>
+    body {
+        background-color: #04071C;
+        color: #f8fafc;
+    }
+
+    .form-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .card-custom {
+        background-color: #050A2E;
+        border: 1px solid rgba(227, 166, 73, 0.4);
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .team-box {
+        background-color: #050A2E;
+        border: 1px solid rgba(227, 166, 73, 0.4);
+        border-radius: 14px;
+        padding: 20px;
+        position: relative;
+    }
+
+    .inner-preview-box {
+        background-color: #04071C;
+        border: 1px solid rgba(227, 166, 73, 0.3);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .preview-img {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+        background-color: #050A2E;
+        border-radius: 10px;
+        padding: 6px;
+        border: 1.5px solid rgba(227, 166, 73, 0.6);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .stadium-preview-img {
+        width: 90px;
+        height: 65px;
+        object-fit: cover;
+        background-color: #050A2E;
+        border-radius: 8px;
+        border: 1.5px solid rgba(227, 166, 73, 0.6);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .vs-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        pointer-events: none;
+    }
+
+    .vs-badge {
+        width: 46px;
+        height: 46px;
+        background-color: #04071C;
+        border: 2px solid #E3A649;
+        color: #E3A649;
+        font-weight: bold;
+        font-size: 0.9rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 15px rgba(227, 166, 73, 0.4);
+    }
+
+    .form-control, .form-select {
+        background-color: #04071C !important;
+        border: 1px solid rgba(227, 166, 73, 0.5) !important;
+        color: #ffffff !important;
+        border-radius: 8px;
+        padding: 10px 14px;
+        position: relative;
+        z-index: 5;
+        cursor: pointer;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #E3A649 !important;
+        box-shadow: 0 0 0 0.25rem rgba(227, 166, 73, 0.25) !important;
+    }
+
+    .form-label {
+        color: #ffffff;
+        font-weight: 500;
+        margin-bottom: 6px;
+        font-size: 0.95rem;
+    }
+
+    .badge-home {
+        background-color: #E3A649;
+        color: #04071C;
+        font-weight: bold;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+    }
+
+    .badge-away {
+        background-color: transparent;
+        color: #93c5fd;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid rgba(59, 130, 246, 0.6);
+        font-size: 0.85rem;
+    }
+
+    textarea.form-control {
+        resize: none;
+        height: 110px;
+    }
+</style>
+
+<div class="container my-5 form-container">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="background-color: #065f46; color: #d1fae5; border: 1px solid #10b981; border-radius: 8px;">
+            @TempData["Success"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="background-color: #7f1d1d; color: #fee2e2; border: 1px solid #ef4444; border-radius: 8px;">
+            <ul class="mb-0 ps-3">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="CreateMatchRequest" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="card-custom mb-4 position-relative">
+            <div class="row g-4 position-relative">
+                <div class="vs-container d-none d-md-flex justify-content-center align-items-center">
+                    <div class="vs-badge">VS</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="team-box h-100">
+                        <h4 class="text-center fw-bold mb-3" style="color: #E3A649;">Home Team</h4>
+
+                        <div class="mb-3 position-relative">
+                            <label class="form-label">Select Home Club</label>
+                            <select id="HomeClubSelect" name="Home_Club" class="form-select" required>
+                                <option value="" selected disabled>Select club</option>
+                                @if (ViewBag.Clubs != null)
+                                {
+                                    @foreach (var club in ViewBag.Clubs)
+                                    {
+                                        <option value="@club.Club_ID" data-logo="@(string.IsNullOrEmpty(club.Logo_Url) ? "/images/placeholder-club.png" : club.Logo_Url)" data-location="@club.Location">@club.Club_Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="inner-preview-box mt-3">
+                            <img id="HomeClubImg" src="/images/placeholder-club.png" alt="Logo" class="preview-img" />
+                            <div class="flex-grow-1">
+                                <h6 id="HomeClubName" class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Select a club</h6>
+                                <small id="HomeClubLocation" class="text-white-50" style="font-size: 0.85rem;">-</small>
+                            </div>
+                            <span class="badge-home">Home</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="team-box h-100">
+                        <h4 class="text-center fw-bold mb-3" style="color: #E3A649;">Away Team</h4>
+
+                        <div class="mb-3 position-relative">
+                            <label class="form-label">Select Away Club</label>
+                            <select id="AwayClubSelect" name="Away_Club" class="form-select" required>
+                                <option value="" selected disabled>Select club</option>
+                                @if (ViewBag.Clubs != null)
+                                {
+                                    @foreach (var club in ViewBag.Clubs)
+                                    {
+                                        <option value="@club.Club_ID" data-logo="@(string.IsNullOrEmpty(club.Logo_Url) ? "/images/placeholder-club.png" : club.Logo_Url)" data-location="@club.Location">@club.Club_Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="inner-preview-box mt-3">
+                            <img id="AwayClubImg" src="/images/placeholder-club.png" alt="Logo" class="preview-img" />
+                            <div class="flex-grow-1">
+                                <h6 id="AwayClubName" class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Select a club</h6>
+                                <small id="AwayClubLocation" class="text-white-50" style="font-size: 0.85rem;">-</small>
+                            </div>
+                            <span class="badge-away">Away</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-custom">
+            <h3 class="text-center fw-bold mb-4" style="color: #E3A649;">Match Information</h3>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Select Stadium</label>
+                    <select id="StadiumSelect" name="Stadium_ID" class="form-select mb-3" required>
+                        <option value="" selected disabled>Select stadium</option>
+                        @if (ViewBag.Stadiums != null)
+                        {
+                            @foreach (var stadium in ViewBag.Stadiums)
+                            {
+                                <option value="@stadium.Stadium_ID" data-img="@(string.IsNullOrEmpty(stadium.Stadium_IMG) ? "/images/default-stadium.png" : stadium.Stadium_IMG)" data-location="@stadium.Location">@stadium.Stadium_Name</option>
+                            }
+                        }
+                    </select>
+
+                    <div class="inner-preview-box">
+                        <img id="StadiumImg" src="/images/default-stadium.png" alt="Stadium" class="stadium-preview-img" />
+                        <div class="flex-grow-1">
+                            <h6 id="StadiumName" class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Select stadium</h6>
+                            <small id="StadiumLocation" class="text-white-50" style="font-size: 0.85rem;">-</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="MatchDate" class="form-control" required />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label">Time</label>
+                            <input type="time" name="MatchTime" class="form-control" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Timezone</label>
+                            <input type="text" class="form-control text-muted" value="Cambodia Time (ICT): UTC+7" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Additional Note (Optional)</label>
+                <textarea name="Note" class="form-control" placeholder="Add any additional information needed in this field of txt."></textarea>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-danger px-4 py-2" style="border-radius: 8px;">Cancel</a>
+                <button type="submit" class="btn btn-success px-4 py-2 fw-bold" style="background-color: #22c55e; border: none; border-radius: 8px;">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('HomeClubSelect').addEventListener('change', function() {
+            var selectedOpt = this.options[this.selectedIndex];
+            document.getElementById('HomeClubName').textContent = selectedOpt.text;
+            document.getElementById('HomeClubLocation').textContent = selectedOpt.getAttribute('data-location') || 'Phnom Penh, Cambodia';
+            var logo = selectedOpt.getAttribute('data-logo');
+            document.getElementById('HomeClubImg').src = logo ? logo : '/images/placeholder-club.png';
+        });
+
+        document.getElementById('AwayClubSelect').addEventListener('change', function() {
+            var selectedOpt = this.options[this.selectedIndex];
+            document.getElementById('AwayClubName').textContent = selectedOpt.text;
+            document.getElementById('AwayClubLocation').textContent = selectedOpt.getAttribute('data-location') || 'Phnom Penh, Cambodia';
+            var logo = selectedOpt.getAttribute('data-logo');
+            document.getElementById('AwayClubImg').src = logo ? logo : '/images/placeholder-club.png';
+        });
+
+        document.getElementById('StadiumSelect').addEventListener('change', function() {
+            var selectedOpt = this.options[this.selectedIndex];
+            document.getElementById('StadiumName').textContent = selectedOpt.text;
+            document.getElementById('StadiumLocation').textContent = selectedOpt.getAttribute('data-location') || 'Phnom Penh, Cambodia';
+            var img = selectedOpt.getAttribute('data-img');
+            document.getElementById('StadiumImg').src = img ? img : '/images/default-stadium.png';
+        });
+    </script>
+}

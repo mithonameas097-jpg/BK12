@@ -1,0 +1,156 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<div class="container my-5 bk-content">
+    <div class="bk-privacy-card p-4 p-md-5">
+
+        <!-- Header Section -->
+        <div class="text-center mb-5">
+            <span class="text-uppercase text-warning fw-bold small tracking-wider" style="letter-spacing: 2px;">Legal & Transparency</span>
+            <h1 class="fw-bold display-5 text-white mt-2 mb-3">BK 12 Privacy Policy</h1>
+            <p class="text-secondary mx-auto" style="max-width: 600px;">
+                Comprehensive data handling practices across Admin, Customer, Club Owner, and Staff roles.
+            </p>
+            <div class="mt-3">
+                <span class="badge bg-warning text-dark px-3 py-2 fw-bold rounded-pill">
+                    <i class="bi bi-shield-check me-1"></i> Effective Date: September 2026
+                </span>
+            </div>
+        </div>
+
+        <hr style="border-color: var(--bk-line);" class="mb-5">
+
+        <div class="row">
+            <!-- Sticky Sidebar Navigation -->
+            <div class="col-lg-3 mb-4 mb-lg-0">
+                <div class="bk-privacy-sidebar p-3">
+                    <h6 class="text-warning fw-bold mb-3 text-uppercase small" style="letter-spacing: 1px;">Table of Contents</h6>
+                    <nav class="nav flex-column bk-privacy-nav">
+                        <a class="nav-link rounded mb-1" href="#introduction"><i class="bi bi-chevron-right small me-2"></i>1. Introduction</a>
+                        <a class="nav-link rounded mb-1" href="#collection"><i class="bi bi-chevron-right small me-2"></i>2. Role Data</a>
+                        <a class="nav-link rounded mb-1" href="#ticketing"><i class="bi bi-chevron-right small me-2"></i>3. Tickets & QR</a>
+                        <a class="nav-link rounded mb-1" href="#payments"><i class="bi bi-chevron-right small me-2"></i>4. Transactions</a>
+                        <a class="nav-link rounded mb-1" href="#operations"><i class="bi bi-chevron-right small me-2"></i>5. Operations</a>
+                        <a class="nav-link rounded mb-1" href="#security"><i class="bi bi-chevron-right small me-2"></i>6. Security</a>
+                        <a class="nav-link rounded mb-1" href="#contact"><i class="bi bi-chevron-right small me-2"></i>7. Contact</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content Body -->
+            <div class="col-lg-9 ps-lg-4">
+
+                <!-- Section 1 -->
+                <section id="introduction" class="mb-5">
+                    <h4 class="fw-bold text-warning mb-3 d-flex align-items-center">
+                        <span class="badge bg-dark border border-warning text-warning me-2 fs-6">01</span> Introduction
+                    </h4>
+                    <p class="text-secondary lh-base">
+                        Welcome to <strong>BK 12</strong>. We deeply value your privacy and are committed to safeguarding the personal and organizational data processed through our football management and ticketing ecosystem. This policy details how data is collected, utilized, and protected across our four primary system tiers: <strong>Admins, Users (Customers), Club Owners, and Staff</strong>.
+                    </p>
+                </section>
+
+                <!-- Section 2 -->
+                <section id="collection" class="mb-5">
+                    <h4 class="fw-bold text-warning mb-3 d-flex align-items-center">
+                        <span class="badge bg-dark border border-warning text-warning me-2 fs-6">02</span> Information Collected by User Roles
+                    </h4>
+                    <p class="text-secondary mb-4">To maintain functional separation and secure workflows, data collection varies depending on your assigned role:</p>
+
+                    <div class="bk-role-box p-3 mb-3">
+                        <h6 class="text-warning fw-bold mb-1"><i class="bi bi-person-fill me-2"></i>Users (Customers / Fans)</h6>
+                        <p class="mb-0 text-secondary small lh-base">Registration details (name, login credentials, contact data), profile settings, ticket purchase logs, search preferences filtered by club/stadium/date, and notification tokens for match alerts.</p>
+                    </div>
+
+                    <div class="bk-role-box p-3 mb-3">
+                        <h6 class="text-warning fw-bold mb-1"><i class="bi bi-shield-shaded me-2"></i>Club Owners</h6>
+                        <p class="mb-0 text-secondary small lh-base">Structural club details, official logos, legal verification documents, stadium/seating layouts, pricing matrices (VIP, Premium, Standard), and match scheduling requests.</p>
+                    </div>
+
+                    <div class="bk-role-box p-3">
+                        <h6 class="text-warning fw-bold mb-1"><i class="bi bi-tools me-2"></i>Staff & Administrators</h6>
+                        <p class="mb-0 text-secondary small lh-base">Platform-wide audit logs, global account controls, transaction monitors, gate scan logs, and validation devices tightly scoped to specific club associations.</p>
+                    </div>
+                </section>
+
+                <!-- Section 3 -->
+                <section id="ticketing" class="mb-5">
+                    <h4 class="fw-bold text-warning mb-3 d-flex align-items-center">
+                        <span class="badge bg-dark border border-warning text-warning me-2 fs-6">03</span> Ticketing Security & QR Codes
+                    </h4>
+                    <p class="text-secondary mb-3">To protect fans and prevent stadium fraud, BK 12 implements strict security controls regarding digital passes:</p>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="bk-security-pill p-3 h-100">
+                                <h6 class="text-warning fw-bold small mb-2"><i class="bi bi-lock-fill me-1"></i> No Raw UUIDs</h6>
+                                <p class="text-secondary m-0" style="font-size: 0.85rem;">Generated QR codes contain secure server-encrypted tokens rather than vulnerable plain text identifiers.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="bk-security-pill p-3 h-100">
+                                <h6 class="text-warning fw-bold small mb-2"><i class="bi bi-hdd-network-fill me-1"></i> Live Validation</h6>
+                                <p class="text-secondary m-0" style="font-size: 0.85rem;">Gate checks instantly verify real-time status, match correctness, and complete payment settlement.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="bk-security-pill p-3 h-100">
+                                <h6 class="text-warning fw-bold small mb-2"><i class="bi bi-slash-circle-fill me-1"></i> Anti-Duplicate</h6>
+                                <p class="text-secondary m-0" style="font-size: 0.85rem;">Once checked in successfully, secondary scan attempts on identical tokens are blocked instantly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4 -->
+                <section id="payments" class="mb-5">
+                    <h4 class="fw-bold text-warning mb-3 d-flex align-items-center">
+                        <span class="badge bg-dark border border-warning text-warning me-2 fs-6">04</span> Transactions & Bakong QR Payments
+                    </h4>
+                    <p class="text-secondary lh-base">
+                        Financial transactions processed through BK 12, including Bakong QR payments, are logged securely to monitor sales, verify revenue streams, and track successful or failed deposits. Transaction references are securely mapped to ticket fulfillment profiles to allow seamless customer support and optional administrative refunds without exposing payment gateway secrets.
+                    </p>
+                </section>
+
+                <!-- Section 5 -->
+                <section id="operations" class="mb-5">
+                    <h4 class="fw-bold text-warning mb-3 d-flex align-items-center">
+                        <span class="badge bg-dark border border-warning text-warning me-2 fs-6">05</span> Staff & Club Operational Scoping
+                    </h4>
+                    <p class="text-secondary lh-base">
+                        Data visibility is strictly isolated based on operational boundaries. For instance, staff members are bound to a single designated club entity (e.g., staff belonging to Club A cannot query, scan, or validate tickets issued for Club B matches). This ensures high data integrity and multi-tenant security across competing franchises.
+                    </p>
+                </section>
+
+                <!-- Section 6 -->
+                <section id="security" class="mb-5">
+                    <h4 class="fw-bold text-warning mb-3 d-flex align-items-center">
+                        <span class="badge bg-dark border border-warning text-warning me-2 fs-6">06</span> Platform Security & Reporting Oversight
+                    </h4>
+                    <p class="text-secondary lh-base">
+                        System Administrators utilize aggregate performance metrics—including revenue charts, match attendance figures, and popularity stats—without compromising user personal identifiers. Access controls, password hashing, and role-based restriction policies are enforced across all middleware layers.
+                    </p>
+                </section>
+
+                <!-- Section 7 -->
+                <section id="contact">
+                    <h4 class="fw-bold text-warning mb-3 d-flex align-items-center">
+                        <span class="badge bg-dark border border-warning text-warning me-2 fs-6">07</span> Policy Updates & Contact
+                    </h4>
+                    <p class="text-secondary lh-base mb-3">
+                        We reserve the right to amend this privacy framework as system features expand. For questions regarding your personal data rights, account suspensions, or platform security guidelines, please reach out directly to the BK 12 System Administrator.
+                    </p>
+                    <a href="/Home/Contact" class="btn btn-outline-warning btn-sm px-4 fw-semibold rounded-pill">
+                        <i class="bi bi-envelope me-2"></i> Reach Out to Support
+                    </a>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+}

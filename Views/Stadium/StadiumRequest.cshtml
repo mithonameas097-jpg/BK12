@@ -1,0 +1,318 @@
+﻿@model _bk12.Models.StadiumRequestViewModel
+
+@{
+    bool isAdmin = User.IsInRole("Admin");
+    ViewData["Title"] = isAdmin ? "Add Stadium" : "Submit Stadium Request";
+}
+
+<style>
+    body {
+        background-color: #04071C;
+        color: #f8fafc;
+    }
+
+    .admin-card {
+        background-color: #050A2E;
+        border: 1px solid #1e293b;
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .form-control, .form-select {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        color: #f8fafc;
+    }
+
+        .form-control:focus, .form-select:focus {
+            background-color: #0f172a;
+            border-color: #f59e0b;
+            color: #f8fafc;
+            box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25);
+        }
+
+    .upload-box {
+        border: 2px dashed #475569;
+        background-color: #0f172a;
+        border-radius: 12px;
+        transition: all 0.2s;
+        cursor: pointer;
+        min-height: 140px;
+    }
+
+        .upload-box:hover {
+            border-color: #f59e0b;
+        }
+
+    .zone-box {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 16px;
+    }
+
+    .preview-box {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .total-capacity-bar {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 16px;
+    }
+
+    .btn-amber {
+        background-color: #f59e0b;
+        color: #0f172a;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+    }
+
+        .btn-amber:hover {
+            background-color: #d97706;
+            color: #ffffff;
+        }
+
+    .uploaded-img-preview {
+        max-height: 180px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #334155;
+    }
+</style>
+
+<div class="container my-5" style="max-width: 1200px;">
+    <!-- Dynamic Header based on Role -->
+    <div class="mb-4">
+        <h2 class="fw-bold text-warning mb-1">
+            <i class="bi @(isAdmin ? "bi-plus-circle-fill" : "bi-geo-alt-fill") me-2"></i>
+            @(isAdmin ? "Add Stadium" : "Register Stadium")
+        </h2>
+        <p class="text-muted small mb-0">
+            @(isAdmin ? "Create a new stadium record directly in the system" : "Submit a new stadium request for admin approval")
+        </p>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show bg-danger text-white border-0 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Updated asp-action to direct POST submissions correctly -->
+    <form asp-action="StadiumRequest" method="post" enctype="multipart/form-data" id="stadiumForm">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <!-- Always provide RequestType to satisfy ModelState requirement -->
+        <input type="hidden" asp-for="RequestType" value="@(isAdmin ? "AdminDirect" : "NewStadium")" />
+        <input type="hidden" asp-for="Stadium_IMG" />
+
+        <div class="row g-4">
+            <!-- Left Column: Stadium Information -->
+            <div class="col-lg-6">
+                <div class="admin-card h-100">
+                    <div class="d-flex align-items-center mb-3 text-warning fw-bold">
+                        <i class="bi bi-building me-2"></i> Stadium Information
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="StadiumName" class="form-label text-light small fw-bold">Stadium Name <span class="text-danger">*</span></label>
+                            <input asp-for="StadiumName" class="form-control" placeholder="Enter stadium name" />
+                            <span asp-validation-for="StadiumName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Stadium_Location" class="form-label text-light small fw-bold">Stadium Location <span class="text-danger">*</span></label>
+                            <input asp-for="Stadium_Location" class="form-control" placeholder="e.g., Phnom Penh, Cambodia" />
+                            <span asp-validation-for="Stadium_Location" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-light small fw-bold">Upload Layout Image</label>
+                        <div class="upload-box p-3 text-center position-relative d-flex flex-column justify-content-center align-items-center">
+                            <input type="file" id="stadiumFileInput" name="stadiumFile" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer; z-index: 10;" accept="image/*" />
+
+                            <div id="uploadPlaceholder" class="@(!string.IsNullOrEmpty(Model?.Stadium_IMG) ? "d-none" : "")">
+                                <i class="bi bi-upload fs-4 text-warning d-block mb-1"></i>
+                                <span class="text-light fw-bold small">Upload Layout Image</span>
+                                <span class="text-muted d-block" style="font-size: 0.7rem;">PNG, JPG, Etc</span>
+                            </div>
+
+                            <div id="imagePreviewContainer" class="@(!string.IsNullOrEmpty(Model?.Stadium_IMG) ? "" : "d-none") w-100 position-relative">
+                                <img id="stadiumImgPreview" src="@(Model?.Stadium_IMG ?? "#")" alt="Layout Preview" class="uploaded-img-preview" />
+                                <span class="badge bg-warning text-dark position-absolute bottom-0 end-0 m-2 shadow">Click to change</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label text-light small fw-bold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter description..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-0">
+                        <label asp-for="Map_Url" class="form-label text-light small fw-bold">Maps URL <span class="text-danger">*</span></label>
+                        <input asp-for="Map_Url" class="form-control" placeholder="Paste Google Maps URL..." />
+                        <span asp-validation-for="Map_Url" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="admin-card h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center mb-3 text-warning fw-bold">
+                            <i class="bi bi-grid-fill me-2"></i> Capacity & Zone Distribution
+                        </div>
+
+                        <div class="mb-3 p-3 rounded" style="background-color: #0f172a; border: 1px solid #334155;">
+                            <label asp-for="Capacity" class="form-label text-light small fw-bold">Total Stadium Capacity <span class="text-danger">*</span></label>
+                            <input asp-for="Capacity" id="totalCapacityInput" type="number" min="1" class="form-control" placeholder="Enter total capacity" />
+                            <span class="text-muted" style="font-size: 0.75rem;">Minimum capacity must be at least 5,000.</span>
+                            <span asp-validation-for="Capacity" class="text-danger small d-block"></span>
+                        </div>
+
+                        <div class="zone-box mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-7">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-primary rounded-circle p-2 me-2" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">A</span>
+                                        <span class="fw-bold text-light">Zone A</span>
+                                    </div>
+                                    <label asp-for="ZoneA" class="form-label text-muted small mb-1">Capacity <span class="text-danger">*</span></label>
+                                    <input asp-for="ZoneA" id="zoneAInput" type="number" min="0" class="form-control form-control-sm" placeholder="Zone A capacity" />
+                                    <span asp-validation-for="ZoneA" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-5 mt-3 mt-md-0">
+                                    <div class="preview-box">
+                                        <span class="text-muted d-block" style="font-size: 0.7rem;">Seat Preview</span>
+                                        <i class="bi bi-people-fill text-warning fs-5"></i>
+                                        <span id="zoneAPreview" class="fw-bold text-light d-block" style="font-size: 0.85rem;">0 Seats</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="zone-box mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-7">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-primary rounded-circle p-2 me-2" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">B</span>
+                                        <span class="fw-bold text-light">Zone B</span>
+                                    </div>
+                                    <label asp-for="ZoneB" class="form-label text-muted small mb-1">Capacity <span class="text-danger">*</span></label>
+                                    <input asp-for="ZoneB" id="zoneBInput" type="number" min="0" class="form-control form-control-sm" placeholder="Zone B capacity" />
+                                    <span asp-validation-for="ZoneB" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-5 mt-3 mt-md-0">
+                                    <div class="preview-box">
+                                        <span class="text-muted d-block" style="font-size: 0.7rem;">Seat Preview</span>
+                                        <i class="bi bi-people-fill text-warning fs-5"></i>
+                                        <span id="zoneBPreview" class="fw-bold text-light d-block" style="font-size: 0.85rem;">0 Seats</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="total-capacity-bar mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-light fw-bold small d-block">Zone Sum / Total Capacity</span>
+                                    <span id="capacityWarning" class="text-danger small fw-bold" style="display: none;">Exceeds total capacity!</span>
+                                </div>
+                                <div>
+                                    <span id="totalSumDisplay" class="fw-bold text-warning fs-5">0 / 0</span> <span class="text-muted small">seats</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top border-secondary">
+                        <a href="@Url.Action("StadiumManage", "Stadium")" class="btn btn-outline-danger px-4 py-2 rounded-pill fw-bold" style="font-size: 0.9rem;">Cancel</a>
+                        <button type="submit" id="submitBtn" class="btn btn-amber px-5 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 0.9rem;">
+                            @(isAdmin ? "Create Stadium" : "Submit Request")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            $('#stadiumFileInput').on('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#stadiumImgPreview').attr('src', e.target.result);
+                        $('#uploadPlaceholder').addClass('d-none');
+                        $('#imagePreviewContainer').removeClass('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('input[type="number"]').on('keydown', function(e) {
+                if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                    e.preventDefault();
+                }
+            });
+
+            function updateCalculations() {
+                let zoneA = parseInt($('#zoneAInput').val()) || 0;
+                let zoneB = parseInt($('#zoneBInput').val()) || 0;
+                let totalCapacity = parseInt($('#totalCapacityInput').val()) || 0;
+
+                if (zoneA < 0) { zoneA = 0; $('#zoneAInput').val(0); }
+                if (zoneB < 0) { zoneB = 0; $('#zoneBInput').val(0); }
+                if (totalCapacity < 0) { totalCapacity = 0; $('#totalCapacityInput').val(0); }
+
+                const zoneSum = zoneA + zoneB;
+
+                $('#zoneAPreview').text(zoneA.toLocaleString() + ' Seats');
+                $('#zoneBPreview').text(zoneB.toLocaleString() + ' Seats');
+                $('#totalSumDisplay').text(zoneSum.toLocaleString() + ' / ' + totalCapacity.toLocaleString());
+
+                if (zoneSum > totalCapacity && totalCapacity > 0) {
+                    $('#capacityWarning').show();
+                    $('#totalSumDisplay').removeClass('text-warning').addClass('text-danger');
+                    $('#submitBtn').prop('disabled', true);
+                } else {
+                    $('#capacityWarning').hide();
+                    $('#totalSumDisplay').removeClass('text-danger').addClass('text-warning');
+                    $('#submitBtn').prop('disabled', false);
+                }
+            }
+
+            $('#zoneAInput, #zoneBInput, #totalCapacityInput').on('input', updateCalculations);
+            updateCalculations();
+        });
+    </script>
+}

@@ -1,0 +1,224 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<_bk12.Data.ApplicationUser> UserManager
+@inject SignInManager<_bk12.Data.ApplicationUser> SignInManager
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var fullBleed = ViewData["FullBleed"] as bool? == true;
+
+    string ActiveClass(string action) =>
+        string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)
+            ? "active"
+            : "";
+
+    string AriaCurrent(string action) => ActiveClass(action) == "active" ? "page" : null;
+
+    var currentUser = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>@ViewData["Title"] - BK12</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />   
+    <link rel="stylesheet" href="~/_bk12.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm bk-navbar mb-3 px-3">
+            <div class="container-fluid d-flex align-items-center justify-content-between position-relative">
+                
+                <!-- LEFT: Logo Brand -->
+                <div class="d-flex align-items-center" style="flex: 1 1 0; min-width: 0;">
+                    <a class="navbar-brand bk-brand-logo py-0 me-0" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="~/images/footer/letters.png" alt="BK12 Logo" style="height: 34px; object-fit: contain;" />
+                    </a>
+                </div>
+
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- CENTER: Navigation Links (Absolute Centered) -->
+                <div id="mainNav" class="navbar-collapse collapse justify-content-center">
+                    <ul class="navbar-nav bk-nav-center text-center">
+                        <li class="nav-item">
+                            <a class="nav-link @ActiveClass("Index")" aria-current="@AriaCurrent("Index")"
+                               asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @ActiveClass("Contact")" aria-current="@AriaCurrent("Contact")"
+                               asp-area="" asp-controller="Home" asp-action="Contact">Contact</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @ActiveClass("About")" aria-current="@AriaCurrent("About")"
+                               asp-area="" asp-controller="Home" asp-action="About">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @ActiveClass("Privacy")" aria-current="@AriaCurrent("Privacy")"
+                               asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- RIGHT: Profile / Account Area -->
+                <div class="bk-account d-flex align-items-center justify-content-end" style="flex: 1 1 0; min-width: 0;">
+                    @if (SignInManager.IsSignedIn(User) && currentUser != null)
+                    {
+                        string profilePicUrl = "~/images/default-avatar.png";
+
+                        if (!string.IsNullOrWhiteSpace(currentUser.ProfilePictureUrl))
+                        {
+                            var trimmedUrl = currentUser.ProfilePictureUrl.Trim();
+                            if (trimmedUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                trimmedUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                            {
+                                profilePicUrl = trimmedUrl;
+                            }
+                            else
+                            {
+                                profilePicUrl = Url.Content("~/" + trimmedUrl.TrimStart('/'));
+                            }
+                        }
+
+                        <div class="dropdown">
+                            <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="@profilePicUrl"
+                                     alt="Profile"
+                                     class="rounded-circle border border-secondary"
+                                     width="38" height="38"
+                                     style="object-fit: cover;"
+                                     referrerpolicy="no-referrer"
+                                     crossorigin="anonymous"
+                                     onerror="console.error('PFP failed to load from URL:', this.src); this.onerror=null; this.src='@Url.Content("~/images/default-avatar.png")';" />
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end bk-menu shadow">
+                                <li class="bk-menu-header">
+                                    <div class="fw-semibold text-truncate">@(currentUser.UserName ?? "User")</div>
+                                    <div class="small text-body-secondary text-truncate">@(currentUser.Email ?? "")</div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item bk-menu-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                        Profile &amp; Settings
+                                    </a>
+                                </li>
+
+                                @await Component.InvokeAsync("RoleSwitcher")
+
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout"
+                                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button type="submit" class="dropdown-item bk-menu-item text-danger">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <partial name="_LoginPartial" />
+                    }
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <div class="bk-content @(fullBleed ? "full-bleed" : "")">
+        <div class="container">
+            <main role="main" class="bk-card">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <!-- Custom Footer Section -->
+    <footer class="text-white py-4 mt-auto" style="background-color: #04071C; border-top: 1px solid #1a2744;">
+        <div class="container text-center">
+
+            <!-- Top Row: Logo, Divider, and Letters Graphic -->
+            <div class="d-flex justify-content-center align-items-center mb-3">
+                <img src="~/images/footer/compressed-logo.png" alt="BK 12 Logo" style="height: 38px; object-fit: contain;" />
+                <div class="vr bg-secondary mx-3 opacity-50" style="height: 30px; width: 2px;"></div>
+                <img src="~/images/footer/letters.png" alt="BK 12 Letters" style="height: 32px; object-fit: contain;" />
+            </div>
+
+            <!-- Social Media Icons Row -->
+            <div class="d-flex justify-content-center gap-3 mb-4">
+                <a href="#" class="social-icon-btn d-flex align-items-center justify-content-center rounded-circle text-white text-decoration-none" style="width: 36px; height: 36px; border: 1px solid #1e2d4a; background-color: #0a1122;">
+                    <i class="bi bi-x"></i>
+                </a>
+                <a href="#" class="social-icon-btn d-flex align-items-center justify-content-center rounded-circle text-white text-decoration-none" style="width: 36px; height: 36px; border: 1px solid #1e2d4a; background-color: #0a1122;">
+                    <i class="bi bi-twitch"></i>
+                </a>
+                <a href="#" class="social-icon-btn d-flex align-items-center justify-content-center rounded-circle text-white text-decoration-none" style="width: 36px; height: 36px; border: 1px solid #1e2d4a; background-color: #0a1122;">
+                    <i class="bi bi-twitter-x"></i>
+                </a>
+                <a href="#" class="social-icon-btn d-flex align-items-center justify-content-center rounded-circle text-white text-decoration-none" style="width: 36px; height: 36px; border: 1px solid #1e2d4a; background-color: #0a1122;">
+                    <i class="bi bi-youtube"></i>
+                </a>
+            </div>
+
+            <!-- Horizontal Separator Line -->
+            <hr class="border-secondary opacity-25 my-3" />
+
+            <!-- Bottom Row: Copyright and Legal Links -->
+            <div class="row align-items-center text-muted small px-3">
+                <div class="col-md-6 text-md-start text-center mb-2 mb-md-0">
+                    &copy; @DateTime.Now.Year BK 12. All rights reserved.
+                </div>
+                <div class="col-md-6 text-md-end text-center">
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted text-decoration-none me-3 hover-text-white">Privacy Policy</a>
+                    <a href="#" class="text-muted text-decoration-none hover-text-white">Terms of Service</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <style>
+            .social-icon-btn:hover {
+                border-color: #ffb703 !important;
+                color: #ffb703 !important;
+                transition: all 0.2s ease-in-out;
+            }
+
+            .hover-text-white:hover {
+                color: #ffffff !important;
+            }
+    </style>
+
+    @if (TempData["Success"] is string successMsg)
+    {
+        <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index:1100">
+            <div id="flashToast" class="toast bk-toast" role="status" aria-live="polite" aria-atomic="true"
+                 data-bs-delay="4000">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <span aria-hidden="true">✔</span>
+                    <span class="flex-grow-1">@successMsg</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const el = document.getElementById("flashToast");
+                if (el) new bootstrap.Toast(el).show();
+            });
+    </script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)</body>
+</html>

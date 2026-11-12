@@ -1,0 +1,30 @@
+﻿@page
+@model _bk12.Areas.Identity.Pages.Account.LinkAccountPromptModel
+@{
+    ViewData["Title"] = "Account Already Exists";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center p-4">
+                <h3 class="card-title mb-3">Account Already Exists</h3>
+                <p class="text-muted">
+                    An account with the email <strong>@Model.Email</strong> already exists in our system. Would you like to link your Google account to this profile?
+                </p>
+
+                <form method="post" asp-page-handler="Link">
+                    <!-- Hidden fields to preserve state across postback -->
+                    <input type="hidden" asp-for="Email" />
+                    <input type="hidden" asp-for="UserIdStr" />
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <input type="hidden" asp-for="LoginProvider" />
+                    <input type="hidden" asp-for="ProviderKey" />
+
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Yes, Link Account & Verify OTP</button>
+                    <a asp-page="./Login" class="btn btn-outline-secondary w-100">Cancel / Log in normally</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

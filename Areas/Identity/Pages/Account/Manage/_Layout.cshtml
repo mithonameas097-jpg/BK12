@@ -1,0 +1,142 @@
+@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
+    {
+        Layout = parentLayout.ToString();
+    }
+    else
+    {
+        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+    }
+}
+
+<style>
+    :root {
+        --bk-navy: #070b24;
+        --bk-navy-2: #0d1233;
+        --bk-gold: #e8b93c;
+        --bk-text: #e8eaf2;
+        --bk-muted: #8a90ad;
+        --bk-line: #1c2450;
+    }
+
+    .bk-manage h1 {
+        color: var(--bk-gold);
+        font-weight: 700;
+        font-size: 1.75rem;
+        letter-spacing: .3px;
+        margin-bottom: .25rem;
+    }
+
+    .bk-manage h2 {
+        color: var(--bk-muted);
+        font-size: 1.1rem;
+        font-weight: 400;
+        margin-bottom: 1.25rem;
+    }
+
+    .bk-manage hr {
+        border-color: var(--bk-line);
+        opacity: 1;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Nav pills for _ManageNav */
+    .bk-manage .nav-pills .nav-link,
+    .bk-manage ul.nav .nav-link {
+        color: var(--bk-text);
+        border: 1px solid transparent;
+        border-radius: 8px;
+        padding: .55rem .9rem;
+        margin-bottom: .25rem;
+        transition: background .15s, color .15s, border-color .15s;
+    }
+
+        .bk-manage .nav-pills .nav-link:hover,
+        .bk-manage ul.nav .nav-link:hover {
+            background: var(--bk-navy);
+            border-color: var(--bk-line);
+            color: var(--bk-gold);
+        }
+
+        .bk-manage .nav-pills .nav-link.active,
+        .bk-manage ul.nav .nav-link.active {
+            background: var(--bk-gold);
+            border-color: var(--bk-gold);
+            color: var(--bk-navy);
+            font-weight: 600;
+        }
+
+    /* Panel that holds the page body */
+    .bk-manage-panel {
+        background: var(--bk-navy-2);
+        border: 1px solid var(--bk-line);
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+    }
+
+    /* Common form elements inside manage pages */
+    .bk-manage .form-control {
+        background: var(--bk-navy);
+        border: 1px solid var(--bk-line);
+        color: var(--bk-text);
+    }
+
+        .bk-manage .form-control:focus {
+            background: var(--bk-navy);
+            color: var(--bk-text);
+            border-color: var(--bk-gold);
+            box-shadow: 0 0 0 .2rem rgba(232, 185, 60, .2);
+        }
+
+        .bk-manage .form-control::placeholder {
+            color: var(--bk-muted);
+        }
+
+    .bk-manage .form-floating > label {
+        color: var(--bk-muted);
+    }
+
+    .bk-manage .text-danger {
+        color: #ff8a8a !important;
+    }
+
+    .bk-manage .btn-primary {
+        background: var(--bk-gold);
+        border-color: var(--bk-gold);
+        color: var(--bk-navy);
+        font-weight: 600;
+        letter-spacing: .3px;
+        transition: background .2s, color .2s;
+    }
+
+        .bk-manage .btn-primary:hover,
+        .bk-manage .btn-primary:focus {
+            background: #f5cf6a;
+            border-color: #f5cf6a;
+            color: var(--bk-navy);
+        }
+</style>
+
+<div class="bk-manage">
+    <h1>Manage your account</h1>
+
+    <div>
+        <h2>Change your account settings</h2>
+        <hr />
+        <div class="row">
+            <div class="col-md-3">
+                <partial name="_ManageNav" />
+            </div>
+            <div class="col-md-9">
+                <div class="bk-manage-panel">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

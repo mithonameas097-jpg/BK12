@@ -1,0 +1,362 @@
+﻿@model IEnumerable<_bk12.Models.ClubRequestViewModel>
+@{
+    ViewData["Title"] = "Club Requests History";
+}
+
+<style>
+    body {
+        background-color: #04071C;
+        color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Card Wrapper */
+
+    .figma-card {
+        background-color: #0a1122;
+        border: 1px solid #1a2744;
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Table Header Container */
+    .figma-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+
+        .figma-table thead tr {
+            background-color: #1e2d4a !important;
+            border-radius: 50px;
+        }
+
+        .figma-table th {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 14px 18px;
+            border: none;
+            white-space: nowrap;
+        }
+
+            .figma-table th:first-child {
+                border-top-left-radius: 30px;
+                border-bottom-left-radius: 30px;
+                padding-left: 24px;
+            }
+
+            .figma-table th:last-child {
+                border-top-right-radius: 30px;
+                border-bottom-right-radius: 30px;
+                padding-right: 24px;
+            }
+
+        /* Table Body Rows */
+        .figma-table td {
+            background-color: transparent;
+            color: #e2e8f0;
+            border-bottom: 1px solid #121c33;
+            vertical-align: middle;
+            padding: 16px 18px;
+            font-size: 0.85rem;
+        }
+
+        .figma-table tr:hover td {
+            background-color: rgba(30, 45, 74, 0.3);
+        }
+
+    /* Status Dots */
+    .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .status-approved {
+        color: #22c55e;
+    }
+
+        .status-approved .status-dot {
+            background-color: #22c55e;
+        }
+
+    .status-rejected {
+        color: #ef4444;
+    }
+
+        .status-rejected .status-dot {
+            background-color: #ef4444;
+        }
+
+    .status-canceled {
+        color: #f97316;
+    }
+
+        .status-canceled .status-dot {
+            background-color: #f97316;
+        }
+
+    .status-pending {
+        color: #eab308;
+    }
+
+        .status-pending .status-dot {
+            background-color: #eab308;
+        }
+
+    /* Figma Pagination Styles */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        margin-top: 10px;
+        border-top: 1px solid #121c33;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .figma-page-btn {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        color: #94a3b8;
+        text-decoration: none;
+        margin: 0 3px;
+        font-weight: 500;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+
+        .figma-page-btn:hover {
+            color: #ffffff;
+            background-color: #1e2d4a;
+        }
+
+        .figma-page-btn.active {
+            background-color: #f59e0b;
+            color: #0a1122;
+            font-weight: 700;
+        }
+
+    .rows-dropdown {
+        background-color: #121c33;
+        color: #94a3b8;
+        border: 1px solid #1e2d4a;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="container my-5">
+    <!-- Header Title with Icon -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-white d-inline-flex align-items-center">
+            <i class="bi bi-shield-lock-fill text-warning me-2"></i> Club Requests
+        </h2>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="figma-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                <p class="mb-0">No club requests found in the system.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table figma-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Requested By</th>
+                            <th>Club Name</th>
+                            <th>Request Date</th>
+                            <th>Review Date</th>
+                            <th>Reviewed By</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr style="cursor: pointer;"
+                                data-bs-toggle="modal"
+                                data-bs-target="#viewRequestModal"
+                                data-request-id="@item.Club_ID"
+                                data-club-name="@item.ClubName"
+                                data-description="@item.Description"
+                                data-logo="@item.Logo_Url"
+                                data-status="@item.Status"
+                                data-reason="@item.RejectedReason"
+                                data-date="@item.SubmittedDate.ToLocalTime().ToString("MMM d, yyyy - h:mm tt")"
+                                data-username="@item.Username">
+
+                                <td class="font-monospace text-light fw-bold">R-@item.Club_ID.ToString("D3")</td>
+                                <td>@item.Username</td>
+                                <td class="fw-semibold text-white">@item.ClubName</td>
+                                <td>@item.SubmittedDate.ToLocalTime().ToString("MMM d, yyyy - h:mm tt")</td>
+                                <td>@(item.ReviewedDate.HasValue ? item.ReviewedDate.Value.ToLocalTime().ToString("MMM d, yyyy - h:mm tt") : "-")</td>
+                                <td>@(string.IsNullOrEmpty(item.ReviewedBy) ? "-" : item.ReviewedBy)</td>
+                                <td>
+                                    @if (item.Status == "Approved")
+                                    {
+                                        <span class="status-approved fw-semibold"><span class="status-dot"></span>Approved</span>
+                                    }
+                                    else if (item.Status == "Rejected")
+                                    {
+                                        <span class="status-rejected fw-semibold"><span class="status-dot"></span>Rejected</span>
+                                    }
+                                    else if (item.Status == "Canceled")
+                                    {
+                                        <span class="status-canceled fw-semibold"><span class="status-dot"></span>Canceled</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pending fw-semibold"><span class="status-dot"></span>Pending</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Figma Pagination Bar -->
+            <div class="pagination-container">
+                <div class="d-flex align-items-center mx-auto">
+                    <a href="#" class="figma-page-btn"><i class="bi bi-chevron-left"></i></a>
+                    <a href="#" class="figma-page-btn active">1</a>
+                    <a href="#" class="figma-page-btn">2</a>
+                    <a href="#" class="figma-page-btn">3</a>
+                    <a href="#" class="figma-page-btn">4</a>
+                    <a href="#" class="figma-page-btn">5</a>
+                    <span class="mx-1">...</span>
+                    <a href="#" class="figma-page-btn">7</a>
+                    <a href="#" class="figma-page-btn"><i class="bi bi-chevron-right"></i></a>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <span class="me-2 text-muted">Rows per page</span>
+                    <select class="rows-dropdown">
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal to View Details -->
+<div class="modal fade" id="viewRequestModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #0a1122; color: #f8fafc; border: 1px solid #1a2744; border-radius: 20px;">
+            <div class="modal-header px-4 py-3 border-bottom border-secondary position-relative">
+                <h4 class="modal-title fw-bold text-warning mx-auto">Club Request Details</h4>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-4" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row align-items-stretch g-4">
+                    <div class="col-md-7 d-flex flex-column justify-content-between">
+                        <div class="p-3 rounded mb-3" style="background-color: #050a15; border: 1px solid #1a2744;">
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Requested By</span>
+                                <strong id="modalRequestedBy" class="text-white text-break">Loading...</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Club Name</span>
+                                <strong id="modalClubName" class="text-warning text-break fs-5">Loading...</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Status</span>
+                                <span id="modalStatus" class="fw-bold">Loading...</span>
+                            </div>
+                            <div>
+                                <span class="text-muted small d-block">Requested Date</span>
+                                <strong id="modalDate" class="text-light">Loading...</strong>
+                            </div>
+                        </div>
+
+                        <!-- Description Box -->
+                        <div class="mb-3">
+                            <span class="text-muted small fw-bold d-block mb-1">Message / Description</span>
+                            <div id="modalDescription" class="p-3 rounded bg-dark border border-secondary text-light overflow-auto" style="max-height: 120px; font-size: 0.9rem;">
+                                Loading description...
+                            </div>
+                        </div>
+
+                        <!-- Rejected Reason Box (Dynamically shown/hidden) -->
+                        <div id="modalReasonContainer" class="d-none">
+                            <span class="text-danger small fw-bold d-block mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Rejection Reason</span>
+                            <div id="modalReason" class="p-3 rounded bg-dark border border-danger text-danger overflow-auto" style="max-height: 100px; font-size: 0.9rem;">
+                                <!-- Reason text goes here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 d-flex flex-column align-items-center justify-content-center text-center">
+                        <span class="text-muted small fw-bold d-block mb-3">Logo</span>
+                        <div class="rounded-circle border border-secondary shadow-lg p-1 bg-dark" style="width: 160px; height: 160px;">
+                            <img id="modalLogoImg" src="" alt="Club Logo" class="rounded-circle w-100 h-100" style="object-fit: cover;" onerror="this.onerror=null; this.src='/images/no-logo.png';" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer px-4 py-3 border-top border-secondary justify-content-end">
+                <button type="button" class="btn btn-secondary px-4 py-2 rounded-pill" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#viewRequestModal').on('show.bs.modal', function(event) {
+                const $button = $(event.relatedTarget);
+                $('#modalRequestedBy').text($button.data('username'));
+                $('#modalClubName').text($button.data('club-name'));
+                $('#modalDate').text($button.data('date'));
+                $('#modalDescription').text($button.data('description'));
+                $('#modalStatus').text($button.data('status'));
+
+                // Handle Rejected Reason visibility
+                const reason = $button.data('reason');
+                const $reasonContainer = $('#modalReasonContainer');
+                const $reasonText = $('#modalReason');
+
+                if (reason && typeof reason === 'string' && reason.trim() !== '' && reason !== 'null') {
+                    $reasonText.text(reason);
+                    $reasonContainer.removeClass('d-none');
+                } else {
+                    $reasonText.text('');
+                    $reasonContainer.addClass('d-none'); 
+                }
+
+                // Handle Logo URL
+                let logoUrl = $button.data('logo');
+                if (logoUrl && typeof logoUrl === 'string' && logoUrl.trim() !== '' && logoUrl !== 'null') {
+                    if (!logoUrl.startsWith('http') && !logoUrl.startsWith('/')) {
+                        logoUrl = '/' + logoUrl;
+                    }
+                    $('#modalLogoImg').attr('src', logoUrl);
+                } else {
+                    $('#modalLogoImg').attr('src', '/images/no-logo.png');
+                }
+            });
+        });
+    </script>
+}

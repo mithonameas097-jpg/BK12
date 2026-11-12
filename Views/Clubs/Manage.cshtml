@@ -1,0 +1,279 @@
+﻿@model _bk12.Models.ManageClubViewModel
+
+@{
+    ViewData["Title"] = "Manage Club";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<div class="container my-5">
+    <!-- Alert Messages -->
+    @if (TempData["Success"] != null || TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: #0f382c; color: #34d399;">
+            <i class="bi bi-check-circle-fill me-2"></i> @(TempData["Success"] ?? TempData["SuccessMessage"])
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: #3f1212; color: #f87171;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- ADMIN BAR SWITCHER -->
+    @if (isAdmin)
+    {
+        <div class="card p-3 mb-4 shadow-lg border-1 rounded-4" style="background-color: #04071C; border-color: #E3A649 !important; color: #ffffff;">
+            <form method="get" asp-action="Manage" class="row align-items-center g-2">
+                <div class="col-md-3 d-flex align-items-center">
+                    <span class="badge px-3 py-2 fw-bold fs-6" style="background-color: #E3A649; color: #04071C;">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Admin Mode
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <select name="selectedClubId" class="form-select text-white custom-blue-input" onchange="this.form.submit()">
+                        <option value="">-- Select Any Club to View / Manage --</option>
+                        @foreach (var club in Model.AvailableClubs)
+                        {
+                            <option value="@club.Club_ID" selected="@(Model.OwnedClub?.Club_ID == club.Club_ID ? "selected" : null)">
+                                @club.Club_Name @(club.User_ID == null || club.User_ID == Guid.Empty ? "(Unowned)" : "")
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a asp-action="ClubRequest" class="btn btn-sm fw-bold px-3" style="border: 1px solid #E3A649; color: #E3A649;">Submit Request</a>
+                </div>
+            </form>
+        </div>
+    }
+
+    @if (Model.HasClub && Model.OwnedClub != null)
+    {
+        <!-- MAIN CLUB DISPLAY CARD -->
+        <div class="card shadow-lg border-2 rounded-4" style="background-color: #050A2E; border-color: #E3A649 !important; color: #ffffff;">
+
+            <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom border-secondary border-opacity-25 py-3 px-4">
+                
+                <!-- Status Badge (Fixed Active/Inactive logic) -->
+                @if (Model.OwnedClub.Inactive)
+                {
+                    <span class="badge bg-danger px-3 py-2 fs-6 text-uppercase">
+                        <i class="bi bi-slash-circle me-1"></i> Inactive
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-success px-3 py-2 fs-6 text-uppercase">
+                        <i class="bi bi-check-circle me-1"></i> Active
+                    </span>
+                }
+
+                <h3 class="mb-0 fw-bold text-center flex-grow-1" style="color: #E3A649;">Club Information</h3>
+
+                <!-- Action Controls (Edit & Admin Status Toggle) -->
+                <div class="d-flex align-items-center gap-2">
+                    
+                    <!-- Admin Activate/Deactivate Toggle Button -->
+                    @if (isAdmin)
+                    {
+                        <form asp-controller="Clubs" asp-action="ToggleStatus" asp-route-id="@Model.OwnedClub.Club_ID" method="post" class="d-inline">
+                            @if (Model.OwnedClub.Inactive)
+                            {
+                                <button type="submit" class="btn btn-sm btn-success fw-bold px-3 py-2" title="Activate Club">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Activate
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-3 py-2" title="Deactivate Club" onclick="return confirm('Are you sure you want to deactivate this club?');">
+                                    <i class="bi bi-slash-circle-fill me-1"></i> Deactivate
+                                </button>
+                            }
+                        </form>
+                    }
+
+                    <!-- Edit Button -->
+                    <a asp-controller="Clubs"
+                       asp-action="ClubEdit"
+                       asp-route-id="@Model.OwnedClub.Club_ID"
+                       class="btn btn-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm"
+                       style="width: 38px; height: 38px; background-color: #E3A649; border: none;"
+                       title="Edit Club">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#04071C" viewBox="0 0 16 16">
+                            <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <div class="row align-items-center mb-4">
+                    
+                    <!-- Club Logo Box -->
+                    <div class="col-md-3 text-center mb-3 mb-md-0">
+                        <div class="p-3 rounded-3 shadow-sm d-inline-block" style="background-color: #04071C; border: 1px solid #081278;">
+                            <img src="@(string.IsNullOrEmpty(Model.OwnedClub.Logo_Url) ? "/images/default-club.png" : Model.OwnedClub.Logo_Url)"
+                                 alt="@Model.OwnedClub.Club_Name Logo"
+                                 class="img-fluid rounded"
+                                 style="max-height: 140px; object-fit: contain;" />
+                        </div>
+                    </div>
+
+                    <!-- Club Main Details -->
+                    <div class="col-md-9">
+                        <h1 class="fw-bold text-white mb-2">@Model.OwnedClub.Club_Name</h1>
+                        <p class="mb-1 text-light">
+                            <strong style="color: #E3A649;">Owner Username :</strong> @(Model.OwnerUsername ?? "Unassigned")
+                        </p>
+                        <p class="mb-0 text-light">
+                            <strong style="color: #E3A649;">Created Date :</strong> @Model.OwnedClub.Created_Date.ToString("dd MMMM yyyy")
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Description Block -->
+                <div class="mb-4">
+                    <h5 class="fw-bold" style="color: #E3A649;">Description:</h5>
+                    <p class="text-light lh-lg" style="text-align: justify; color: #cbd5e1 !important;">
+                        @(string.IsNullOrWhiteSpace(Model.OwnedClub.Description) ? "No description provided for this club." : Model.OwnedClub.Description)
+                    </p>
+                </div>
+
+                <hr class="my-4" style="border-color: #E3A649; opacity: 0.3;" />
+
+                <div class="d-flex justify-content-between text-white-50 small">
+                    <span>ID : #@Model.OwnedClub.Club_ID.ToString("D4")</span>
+                    <span>Updated Date : @Model.OwnedClub.Updated_Date.ToString("dd MMMM yyyy")</span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- UNLINKED OWNER PORTAL VIEW -->
+        <div class="text-center text-white mb-5">
+            <h2 class="fw-bold" style="color: #E3A649;">Club Owner Portal</h2>
+            <p class="text-light-50" style="color: #cbd5e1;">You are registered as a Club Owner, but you are not linked to any active club yet.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- CLAIM EXISTING CLUB CARD -->
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-2 rounded-4 p-4" style="background-color: #050A2E; border-color: #E3A649 !important; color: #ffffff;">
+                    <h4 class="fw-bold mb-3" style="color: #E3A649;">Choose Existing Club</h4>
+                    <p class="text-light mb-4" style="color: #cbd5e1;">If your club has already been pre-created in the system by an administrator, select it here to claim ownership.</p>
+
+                    @if (Model.AvailableClubs.Any())
+                    {
+                        <form asp-action="ClaimExistingClub" method="post">
+                            <div class="row g-4 align-items-center">
+
+                                <!-- LEFT BOX: Dynamic Logo & Club Info Preview -->
+                                <div class="col-md-5 text-center border-end border-secondary border-opacity-25 pe-md-4">
+                                    <div class="p-3 rounded border shadow-sm" style="background-color: #04071C; border-color: #E3A649 !important;">
+                                        <label class="form-label fw-bold small mb-2" style="color: #E3A649;">Club Logo Preview</label>
+                                        <div class="d-flex justify-content-center align-items-center rounded p-2 mb-2" style="height: 150px; background-color: #02040D; border: 1px solid #081278; overflow: hidden;">
+                                            <img id="claimLogoPreview" src="/images/default-club.png" alt="Select Club" class="img-fluid" style="max-height: 130px; object-fit: contain;" />
+                                        </div>
+                                        <p id="claimClubDesc" class="text-light small text-truncate mb-0 opacity-75">Select a club to view details</p>
+                                    </div>
+                                </div>
+
+                                <!-- RIGHT BOX: Dropdown Selection and Claim Button -->
+                                <div class="col-md-7 ps-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label text-light fw-bold">Select Available Club</label>
+                                        <select id="selectedClubDropdown" name="selectedClubId" class="form-select text-white custom-blue-input py-2" required>
+                                            <option value="">-- Choose a Club --</option>
+                                            @foreach (var club in Model.AvailableClubs)
+                                            {
+                                                <option value="@club.Club_ID" data-logo="@(string.IsNullOrEmpty(club.Logo_Url) ? "/images/default-club.png" : club.Logo_Url)" data-desc="@club.Description">
+                                                    @club.Club_Name
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn w-100 fw-bold py-2 mt-3" style="background-color: #E3A649; color: #04071C; border: none;">
+                                        Request for Ownership
+                                    </button>
+                                </div>
+
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-dark mt-2 border-secondary" style="background-color: #04071C; color: #94A3B8;">
+                            No unowned clubs are currently available to claim.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- REGISTER NEW CLUB CARD -->
+            <div class="col-lg-4">
+                <div class="card h-100 shadow-lg border-2 rounded-4 p-4 d-flex flex-column justify-content-between" style="background-color: #050A2E; border-color: #E3A649 !important; color: #ffffff;">
+                    <div>
+                        <h4 class="fw-bold mb-3" style="color: #E3A649;">Register New Club</h4>
+                        <p class="text-light" style="color: #cbd5e1;">If your club doesn't exist in the system yet, submit a registration request for admin approval.</p>
+                    </div>
+                    <div class="mt-4">
+                        <a asp-action="ClubRequest" class="btn btn-success w-100 fw-bold py-2 shadow-sm">Submit New Club Request</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+<style>
+    /* Navy & Royal Blue styling for inputs & selects */
+    .custom-blue-input {
+        background-color: #081278 !important;
+        border: 1px solid #1E293B !important;
+        color: #ffffff !important;
+    }
+
+    .custom-blue-input:focus {
+        background-color: #0A1696 !important;
+        border-color: #E3A649 !important;
+        box-shadow: 0 0 8px rgba(227, 166, 73, 0.4) !important;
+        color: #ffffff !important;
+    }
+
+    .custom-blue-input option {
+        background-color: #050A2E;
+        color: #ffffff;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdown = document.getElementById('selectedClubDropdown');
+            const logoPreview = document.getElementById('claimLogoPreview');
+            const descPreview = document.getElementById('claimClubDesc');
+
+            if (dropdown) {
+                dropdown.addEventListener('change', function () {
+                    const selectedOption = dropdown.options[dropdown.selectedIndex];
+                    const logoUrl = selectedOption.getAttribute('data-logo');
+                    const description = selectedOption.getAttribute('data-desc');
+
+                    if (dropdown.value && logoUrl) {
+                        logoPreview.src = logoUrl;
+                        descPreview.textContent = description || "No description available.";
+                    } else {
+                        logoPreview.src = '/images/default-club.png';
+                        descPreview.textContent = "Select a club to view details";
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,34 @@
+﻿@page
+@model _bk12.Areas.Identity.Pages.Account.ConfirmLoginPromptModel
+@{
+    ViewData["Title"] = "Confirm Login";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card bk-card p-4 shadow">
+            <h3 class="text-center mb-3">Confirm Your Account</h3>
+            <p class="text-muted text-center">
+                You are about to log in as <strong>@Model.Email</strong> using Google.
+                Do you want to proceed with this account?
+            </p>
+
+            <form method="post" class="mt-4">
+                <input type="hidden" asp-for="Email" />
+                <input type="hidden" asp-for="LoginProvider" />
+                <input type="hidden" asp-for="ProviderKey" />
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div class="d-grid gap-2">
+                    <button type="submit" asp-page-handler="Confirm" class="btn btn-primary btn-lg">
+                        Yes, Log In
+                    </button>
+
+                    <button type="submit" asp-page-handler="Cancel" class="btn btn-outline-secondary">
+                        Cancel / Use another account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
